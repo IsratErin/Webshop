@@ -22,3 +22,26 @@ app.post("/products", async (req, res) => {
     }
   }
 });
+
+app.get("/products", async (req, res) => {
+  try {
+    const { category, minPrice, maxPrice } = req.query;
+    const filteredProducts = await prisma.product.findMany({
+      where: {
+        price: {
+          gte: minPrice ? Number(minPrice) : undefined,
+          lte: maxPrice ? Number(maxPrice) : undefined,
+        },
+        category: category ? { name: { equals: String(category) } } : undefined,
+      },
+      include: { category: true },
+    });
+    res.json(filteredProducts);
+  } catch (error) {
+    if (error instanceof Error) {
+      res.status(500).send(error.message);
+    } else {
+      res.status(500).send("Unknown error");
+    }
+  }
+});
