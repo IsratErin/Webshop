@@ -23,6 +23,11 @@ app.post("/products", async (req, res) => {
   }
 });
 
+// Get products with query filters (req.query)
+// Examples:
+// /products?category=Electronics
+// /products?minPrice=10&maxPrice=100
+
 app.get("/products", async (req, res) => {
   try {
     const { category, minPrice, maxPrice } = req.query;
@@ -43,5 +48,20 @@ app.get("/products", async (req, res) => {
     } else {
       res.status(500).send("Unknown error");
     }
+  }
+});
+
+// Update product by id (req.params)
+app.patch("/products/:productId", async (req, res) => {
+  try {
+    const updated = await prisma.product.update({
+      where: { id: Number(req.params.productId) },
+      data: req.body,
+    });
+    res.json(updated);
+  } catch (error) {
+    res
+      .status(500)
+      .send(error instanceof Error ? error.message : "Unknown error");
   }
 });
